@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script>
+      "use strict";
+
+      const refresh = function () {
+        let today = new Date();
+        let seconds = today.getSeconds();
+        if (seconds < 10) {
+          seconds = "0" + today.getSeconds();
+        }
+        let currTime =
+          today.getHours() + ":" + today.getMinutes() + ":" + seconds;
+        console.log(currTime);
+      };
+
+      const loaded = function () {
+        window.setInterval(refresh, 1000);
+        window.setInterval(drawClock, 1000);
+      };
+    </script>
+  </head>
+  <body onload="loaded()">
+    <h2>Horloge</h2>
+    <canvas id="clock" width="600" height="600"></canvas>
+    <script>
+      const canvas = document.getElementById("clock");
+      const context = canvas.getContext("2d");
+      
+      let center = canvas.width/2;
+      let strokeLength = 60;
+      let radius = 220;
+
+      const getSecRotation = function(seconds) {
+        return seconds * (2 * Math.PI)/60;
+      }
+      const getMinRotation = function(minutes) {
+        return minutes * (2 * Math.PI)/60;
+      }
+      const getHourRotation = function(hours) {
+        return hours * (2 * Math.PI)/12;
+      }
+
+      const drawHand = function(context, rotation, handPos, center, type) {
+        context.save(); // Sauvegarde l'état du canvas avant la translation et la rotation
+        if (type == 'sec') { context.strokeStyle = 'red'; }
+        else { context.strokeStyle = 'black'; };
+        context.lineWidth = 1;
+        context.beginPath();
+        context.moveTo(center, center);
+        context.translate(center, center); // Prend le centre du cercle comme point de rotation
+        context.rotate(rotation); // Pivoter l'aiguille en fonction des secondes ou minutes
+        context.translate(-center, -center); // Remet le canevas à son point d'origine
+        context.lineTo(center, handPos);
+        context.stroke();
+        context.restore(); // Restaure l'état du canvas avant la translation et la rotation
+      }
+
+      const drawCircle = function(context, center, radius) {   
+        context.strokeStyle = 'blue';
+        context.lineWidth = 3;
+        context.beginPath();
+        context.arc(center, center, radius, 2*Math.PI, false);
+        context.stroke();
+      }
+
+      const drawClock = function() {
+        let today = new Date();
+        let secRotation = getSecRotation(today.getSeconds());
+        let minRotation = getMinRotation(today.getMinutes());
+        let hourRotation = getHourRotation(today.getHours());
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawCircle(context, center, radius);
+        drawHand(context, secRotation, center - strokeLength*3, center, 'sec');
+        drawHand(context, minRotation, center - strokeLength*2, center, 'min');
+        drawHand(context, hourRotation, center - strokeLength, center, 'h');
+      }
+
+    </script>
+  </body>
+</html>
